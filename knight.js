@@ -1,59 +1,84 @@
 class Node {
-    constructor() {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
         this.distance = null;
-        this.successor = null;
+        this.predecessor = null;
         this.visited = false;
     }
 }
 
 class Chessboard {
-    constructor(width = 8, height = 8){
+    constructor(width = 8, height = 8) {
         this.width = width;
         this.height = height;
+        this.grid = Array.from({ length: width }, (_, x) =>
+            Array.from({ length: height }, (_, y) => new Node(x, y))
+        );
     }
 
     isValidMove(x, y) {
         return x >= 0 && y >= 0 && x < this.width && y < this.height;
+    }
+
+    getNode(x, y) {
+        return this.isValidMove(x, y) ? this.grid[x][y] : null;
     }
 }
 
 class Knight {
     constructor(board) {
         this.board = board;
-        this.moveset = [ 
+        this.moveset = [
             [1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]
         ];
     }
 
-    getPossibleMoves(x, y) {
-        if (!this.board.isValidMove(x, y)) {
-            throw new Error ("Invalid starting position.");
-        }
-
+    getPossibleMoves(node) {
         return this.moveset
-            .map(([dx, dy]) => [x + dx, y + dy])
-            .filter(([newX, newY]) => this.board.isValidMove(newX, newY));
+            .map(([dx, dy]) => {
+                let newX = node.x + dx;
+                let newY = node.y + dy;
+                return this.board.isValidMove(newX, newY) ? this.board.getNode(newX, newY) : null;
+            })
+            .filter(n => n && !n.visited);
     }
 }
 
-function knightMoves(startPoint, endPoint) {
+function knightMoves(board, knight, startCoords, endCoords) {
+    let startNode = board.getNode(...startCoords);
+    let endNode = board.getNode(...endCoords);
+
+    if (!startNode || !endNode) throw new Error("Invalid starting position.");
+
     let queue = [startPoint];
     startPoint.visited = true;
     startPoint.distance = 0;
+
     while (queue.length > 0) {
         let node = queue.shift();
+
         if (node === endPoint) {
             return node;
         }
 
+        for (let move of knight.getPossibleMoves(node)) {
+            move.visited = true;
+            move.distance = node.distance + 1;
+            move.predecessor = node;
+            queue.push(move);
+        }
     }
-    //while the queue is not empty
-        //pop off the head of the queue
-        //if it's endPoint
-            //exit and return the point
-        //for each next possible move:
-            //mark the item as visited
-            //increase its distance by one (implement a predecessor to increment distance correctly?)
-            //put it in the queue
-    //if we make it here it's fucked
+
+    return null;
+}
+
+function reconstructPath(endNode) {
+    let path = [];
+    let current = endNode;
+    while (current) {
+        path.push([current.x, current.y]);
+        current = current.predecessor;
+    }
+    return path.reverse();
 }
