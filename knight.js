@@ -51,14 +51,14 @@ function knightMoves(board, knight, startCoords, endCoords) {
 
     if (!startNode || !endNode) throw new Error("Invalid starting position.");
 
-    let queue = [startPoint];
-    startPoint.visited = true;
-    startPoint.distance = 0;
+    let queue = [startNode];
+    startNode.visited = true;
+    startNode.distance = 0;
 
     while (queue.length > 0) {
         let node = queue.shift();
 
-        if (node === endPoint) {
+        if (node === endNode) {
             return node;
         }
 
@@ -82,3 +82,7 @@ function reconstructPath(endNode) {
     }
     return path.reverse();
 }
+
+let board = new Chessboard();
+let knight = new Knight(board);
+console.log(knightMoves(board, knight, [0,0], [7,7]));
