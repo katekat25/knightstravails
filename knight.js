@@ -83,6 +83,15 @@ function reconstructPath(endNode) {
     return path.reverse();
 }
 
+function printPath(endNode) {
+    let path = reconstructPath(endNode);
+    console.log(`The knight moves in ${path.length - 1} steps:`);
+    path.forEach((pos, index) => {
+        console.log(`${index}: (${pos[0]}, ${pos[1]})`);
+    });
+}
+
 let board = new Chessboard();
 let knight = new Knight(board);
-console.log(knightMoves(board, knight, [0,0], [7,7]));
+let endNode = knightMoves(board, knight, [0,0], [7,7]);
+printPath(endNode);
